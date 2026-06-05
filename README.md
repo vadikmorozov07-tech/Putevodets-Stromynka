@@ -24,6 +24,7 @@
 - NetworkX 3.1
 - Matplotlib 3.7.1
 - Pillow 10.0.0
+- NumPy 1.26.4
 
 ## Структура проекта
 
@@ -82,40 +83,62 @@ py -m pip --version
 python3 -m pip --version
 ```
 
-## Установка
+---
 
-Перейдите в корневую папку проекта и установите необходимые зависимости.
+## Установка (через виртуальное окружение)
 
-### Windows
+### 1. Создание виртуального окружения
 
+#### Windows
+```bash
+py -m venv venv
+```
+
+#### Linux / WSL
+```bash
+python3 -m venv venv
+```
+
+### 2. Активация виртуального окружения
+
+#### Windows
+```bash
+venv\Scripts\activate
+```
+
+#### Linux / WSL
+```bash
+source venv/bin/activate
+```
+
+После активации появится:
+
+```text
+(venv)
+```
+
+### 3. Установка зависимостей
+
+#### Windows
 ```bash
 py -m pip install -r requirements/requirements.txt
 ```
 
-### Linux/macOS
-
+#### Linux / macOS
 ```bash
 python3 -m pip install -r requirements/requirements.txt
 ```
 
-Будут установлены следующие зависимости:
-
-- Flask 2.3.2
-- Flask-CORS 4.0.0
-- NetworkX 3.1
-- Matplotlib 3.7.1
-- Pillow 10.0.0
+---
 
 ## Запуск приложения
 
 ### Windows
-
 ```bash
 py app.py
 ```
 
 ### Linux/macOS
-
 ```bash
 python3 app.py
 ```
@@ -147,8 +170,6 @@ Press CTRL+C to quit
 ```text
 CTRL+C
 ```
-
-в окне терминала или командной строки.
 
 ## Настройка
 
