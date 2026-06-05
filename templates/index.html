@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Путеводецъ Стромынька</title>
+    <link rel="stylesheet" href="/static/css/main.css">
+    <link rel="stylesheet" href="/static/css/types.css">
+</head>
+<body>
+<div class="ULTRAMAIN">
+    <!-- Навигационная панель -->
+    <div class="navbar">
+        <h1>Путеводецъ Стромынька</h1>
+    </div>
+    
+    <!-- Основной контент -->
+    <div class="MAIN">
+        <div class="left"></div>
+        <div class="center">
+           <div id="map-container" style="
+                    width: 100%;
+                    height: 600px;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    background-color: cornsilk;
+                    border: 2px solid gray;
+                    border-radius: 3px;
+                    margin-bottom: 0px;
+                    overflow: auto;
+                    position: relative;
+                
+                ">
+                    <img id="route-image" src="" alt="Карта маршрута" style="
+                        max-width: 100%;
+                        max-height: 100%;
+                        object-fit: contain;
+                        display: none;
+                    ">
+                    <div id="loading-message" style="
+                        font-size: 16px;
+                        color: #666;
+                        text-align: center;
+                    ">
+                        Здесь будет отображаться карта маршрута
+                    </div>
+            </div>
+        </div>
+        <div class="right"></div>
+    </div>
+    
+    <!-- Форма для ввода данных -->
+    <div class="low">
+        <input 
+            type="text" 
+            id="roomFrom" 
+            placeholder="Откуда (номер кабинета):"
+            autocomplete="off"
+        >
+        <p></p>
+        <input 
+            type="text" 
+            id="roomTo" 
+            placeholder="Куда (номер кабинета):"
+            autocomplete="off"
+        >
+        <p></p>
+        <button onclick="buildRoute()">Построить маршрут</button>
+    </div>
+</div>
+
+</body>
+
+   <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const elements = {
+                roomFrom: document.getElementById('room-from'),
+                roomTo: document.getElementById('room-to'),
+                button: document.getElementById('build-button'),
+                mapContainer: document.getElementById('map-container'),
+                routeImage: document.getElementById('route-image'),
+                loadingMsg: document.getElementById('loading-message'),
+                pathDisplay: document.getElementById('path-display')
+            };
+
+            console.log('Elements status:');
+            Object.keys(elements).forEach(key => {
+                const status = elements[key] ? '✓' : '✗';
+                console.log(`  ${key}: ${status}`);
+            });
+
+            if (elements.roomTo) {
+                elements.roomTo.addEventListener('keypress', function(event) {
+                    if (event.key === 'Enter') {
+                        console.log('Enter key pressed');
+                        buildRoute();
+                    }
+                });
+            }
+        });
+
+        function buildRoute() {
+            console.log('📍 buildRoute called');
+
+            const roomFromElement = document.getElementById('roomFrom');
+            const roomToElement = document.getElementById('roomTo');
+            const loadingMsg = document.getElementById('loading-message');
+            const routeImg = document.getElementById('route-image');
+            const pathDisplay = document.getElementById('path-display');
+
+            if (!roomFromElement || !roomToElement) {
+                console.error('✗ Input elements not found');
+                alert('Ошибка: поля ввода не найдены на странице');
+                return;
+            }
+
+            const roomFrom = roomFromElement.value.trim();
+            const roomTo = roomToElement.value.trim();
+
+            console.log(`Маршрут: ${roomFrom} → ${roomTo}`);
+
+            if (!roomFrom || !roomTo) {
+                alert('Пожалуйста, укажите оба кабинета');
+                return;
+            }
+
+            if (roomFrom === roomTo) {
+                alert('Кабинеты совпадают. Укажите разные кабинеты');
+                return;
+            }
+
+            if (loadingMsg) {
+                loadingMsg.textContent = '⏳ Загрузка маршрута...';
+                loadingMsg.style.display = 'block';
+            }
+            if (routeImg) {
+                routeImg.style.display = 'none';
+            }
+
+            console.log('📤 Отправляем запрос на сервер...');
+
+            fetch('/api/generate-route', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    roomFrom: roomFrom,
+                    roomTo: roomTo
+                })
+            })
+            .then(function(response) {
+                console.log('📥 Получен ответ: статус', response.status);
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(function(data) {
+                console.log('📦 Данные:', data);
+
+                if (!data.success) {
+                    const errorMsg = data.error || 'Неизвестная ошибка сервера';
+                    console.error('✗ Ошибка от сервера:', errorMsg);
+                    
+                    if (loadingMsg) {
+                        loadingMsg.textContent = '❌ Ошибка: ' + errorMsg;
+                        loadingMsg.style.display = 'block';
+                    }
+                    if (routeImg) {
+                        routeImg.style.display = 'none';
+                    }
+                    if (pathDisplay) {
+                        pathDisplay.textContent = '🗺️ Маршрут: (ошибка)';
+                    }
+                    return;
+                }
+		function showFloorTransition(roomFrom, roomTo) {
+		    const floor3 = ['301', '302', '303', '307а', 'Зал заседаний', 'Учебный отдел'];
+		    const floorFrom = floor3.includes(roomFrom) ? 3 : 2;
+		    const floorTo = floor3.includes(roomTo) ? 3 : 2;
+    
+		    if (floorFrom !== floorTo) {
+		        const oldDiv = document.getElementById('floor-transition-message');
+		        if (oldDiv) {
+		            oldDiv.remove();
+    			    }
+     		 const div = document.createElement('div');
+  		      div.id = 'floor-transition-message'; // Добавляем ID для поиска
+  		      div.style.cssText = 'background:#fff3cd;border:2px solid #ffc107;border-radius:5px;padding:15px;margin-bottom:15px;text-align:center;font-weight:bold;';
+  		      div.textContent = `⚠️ Переход по лестнице между ${floorFrom} и ${floorTo} этажами`;
+        
+		        document.querySelector('.left').appendChild(div);
+		        setTimeout(() => {
+		            if (div.parentNode) {
+		                div.remove();
+		            }
+		        }, 4000);
+		    }
+		}
+
+
+
+                if (!data.image) {
+                    console.error('✗ Изображение не получено');
+                    if (loadingMsg) {
+                        loadingMsg.textContent = '❌ Ошибка: изображение не получено с сервера';
+                        loadingMsg.style.display = 'block';
+                    }
+                    if (routeImg) {
+                        routeImg.style.display = 'none';
+                    }
+                    return;
+                }
+		showFloorTransition(roomFrom, roomTo);
+                console.log('🖼️ Отображаем изображение...');
+                if (routeImg) {
+                    routeImg.src = data.image;
+                    routeImg.style.display = 'block';
+                    
+                    routeImg.onload = function() {
+                        console.log('✓ Изображение загружено успешно');
+                    };
+                    
+                    routeImg.onerror = function() {
+                        console.error('✗ Ошибка при загрузке изображения');
+                        if (loadingMsg) {
+                            loadingMsg.textContent = '❌ Ошибка при загрузке изображения';
+                            loadingMsg.style.display = 'block';
+                        }
+                    };
+                }
+
+                if (loadingMsg) {
+                    loadingMsg.style.display = 'none';
+                }
+
+                if (data.path && Array.isArray(data.path)) {
+                    const pathString = data.path.join(' → ');
+                    console.log('✓ Путь:', pathString);
+                    if (pathDisplay) {
+                        pathDisplay.textContent = '🗺️ Маршрут: ' + pathString;
+                    }
+                } else {
+                    console.warn('⚠️ Путь не получен');
+                    if (pathDisplay) {
+                        pathDisplay.textContent = '🗺️ Маршрут: (невозможно отобразить)';
+                    }
+                }
+
+                console.log('✓ Маршрут построен успешно!');
+            })
+            .catch(function(error) {
+                console.error('❌ Ошибка:', error);
+                
+                let errorMessage = 'Ошибка построения, проверьте введённые кабинеты';
+                if (error.message) {
+                    errorMessage += ': ' + error.message;
+                }
+
+                if (loadingMsg) {
+                    loadingMsg.textContent = '❌ ' + errorMessage;
+                    loadingMsg.style.display = 'block';
+                }
+                if (routeImg) {
+                    routeImg.style.display = 'none';
+                }
+                if (pathDisplay) {
+                    pathDisplay.textContent = '🗺️ Маршрут: (Ошибка построения, проверьте введённые кабинеты)';
+                }
+            });
+        }
+
+        console.log('✓ Все функции определены');
+    </script>
+
+</html>
