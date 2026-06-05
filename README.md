@@ -94,7 +94,7 @@ python3 -m pip --version
 py -m venv venv
 ```
 
-#### Linux / WSL
+#### Linux/macOS
 ```bash
 python3 -m venv venv
 ```
@@ -106,7 +106,7 @@ python3 -m venv venv
 venv\Scripts\activate
 ```
 
-#### Linux / WSL
+#### Linux/macOS
 ```bash
 source venv/bin/activate
 ```
@@ -124,7 +124,7 @@ source venv/bin/activate
 py -m pip install -r requirements/requirements.txt
 ```
 
-#### Linux / macOS
+#### Linux/macOS
 ```bash
 python3 -m pip install -r requirements/requirements.txt
 ```
